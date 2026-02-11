@@ -1,0 +1,22 @@
+{
+  "name": "fitchekk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "ovais"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hukshh/fitchekk.git"
+  },
+  "author": "ovais koite",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hukshh/fitchekk/issues"
+  },
+  "homepage": "https://github.com/hukshh/fitchekk#readme",
+  "dependencies": {
+    "lazycommits": "^1.0.0"
+  }
+}

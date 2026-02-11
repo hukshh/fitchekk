@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  user_id       Int           @id @default(autoincrement())
+  user_name     String
+  user_email    String        @unique
+  user_password String
+  xp            Int           @default(0)
+  streak        Int           @default(0)
+  lastWorkout   DateTime?
+  createdAt     DateTime      @default(now())
+
+  workouts    Workout[]
+  exercises   Exercise[]
+  attendances Attendance[]
+  progress    ProgressLog[]
+  cartItems   CartItem[]
+  orders      Order[]
+}
+
+model Exercise {
+  id          Int          @id @default(autoincrement())
+  name        String
+  muscleGroup String?
+  userId      Int?
+  createdAt   DateTime     @default(now())
+
+  user User?        @relation(fields: [userId], references: [user_id])
+  sets WorkoutSet[]
+
+  @@unique([name, userId])
+}
+
+model Workout {
+  id        Int          @id @default(autoincrement())
+  userId    Int
+  title     String?
+  date      DateTime     @default(now())
+  createdAt DateTime     @default(now())
+
+  user User         @relation(fields: [userId], references: [user_id])
+  sets WorkoutSet[]
+}
+
+model WorkoutSet {
+  id         Int    @id @default(autoincrement())
+  workoutId  Int
+  exerciseId Int
+  reps       Int
+  weight     Float?
+  rpe        Float?
+  order      Int?
+
+  workout  Workout  @relation(fields: [workoutId], references: [id])
+  exercise Exercise @relation(fields: [exerciseId], references: [id])
+}
+
+model Attendance {
+  id              Int       @id @default(autoincrement())
+  userId          Int
+  checkIn         DateTime
+  checkOut        DateTime?
+  durationMinutes Int?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [user_id])
+}
+
+model ProgressLog {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  date        DateTime  @default(now())
+  weight      Float?
+  bodyFat     Float?
+  lastWorkout DateTime?
+
+  user User @relation(fields: [userId], references: [user_id])
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+
+  products Product[]
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  imageUrl    String?
+  stock       Int       @default(0)
+  categoryId  Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  category   Category    @relation(fields: [categoryId], references: [id])
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [user_id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+}
+
+model Order {
+  id              Int       @id @default(autoincrement())
+  userId          Int
+  totalAmount     Float
+  status          String    @default("pending")
+  shippingAddress String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user  User        @relation(fields: [userId], references: [user_id])
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
