@@ -1,14 +1,21 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { HiOutlineMenu, HiOutlineX, HiOutlineShoppingCart } from 'react-icons/hi';
 
 const Navbar = () => {
     const { isAuthenticated, user, logout } = useAuth();
     const location = useLocation();
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
 
     const isLanding = location.pathname === '/';
+
+    useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 50);
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
 
     const navLinks = isAuthenticated
         ? [
@@ -24,7 +31,7 @@ const Navbar = () => {
         ];
 
     return (
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isLanding ? 'bg-transparent' : 'glass-strong'
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isLanding && !scrolled ? 'bg-transparent' : 'glass-strong'
             }`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16 lg:h-20">
@@ -45,8 +52,8 @@ const Navbar = () => {
                                 key={link.to}
                                 to={link.to}
                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${location.pathname === link.to
-                                        ? 'text-primary bg-primary/10'
-                                        : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
+                                    ? 'text-primary bg-primary/10'
+                                    : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
                                     }`}
                             >
                                 {link.label}
